@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <base target="_top">
@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Html5Qrcode Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
@@ -26,15 +25,8 @@
 
     <script>
       // --- CONFIG & TAILWIND ---
-      
-      // ==========================================
-      // 📢 ส่วนแก้ไขข้อความหัวเว็บ (Gimmick Text) 📢
-      // ==========================================
-      const HOME_HEADER_CONTENT = '<span class="text-ios-red">H</span>ORIZON'; 
-      // ==========================================
+      const HOME_HEADER_CONTENT = '<span class="text-ios-red">M</span>ANU'; 
 
-
-      // FIX: Check if tailwind exists before configuring to prevent ReferenceError
       if (typeof tailwind !== 'undefined') {
           tailwind.config = {
             theme: {
@@ -65,10 +57,10 @@
 
 
       // --- GLOBAL VARS ---
-      let currentMode = 'visitor'; // 'visitor' or 'temp'
+      let currentMode = 'visitor';
       let tempActiveData = [];
       let tempHistoryData = [];
-      let currentTempTab = 'active'; // 'active' or 'history'
+      let currentTempTab = 'active'; 
       
       let html5QrCode;
       let cameraStream = null;
@@ -82,6 +74,12 @@
       let isHistoryEditMode = false;
       let historyData = []; 
       let selectedHistoryIndex = -1;
+      
+      // LICENSE & OWNER VARS
+      let licenseData = [];
+      let ownerData = [];
+      let licenseEditImg = null;
+      let licenseAddImg = null;
 
 
       // TEMP EDIT VARS
@@ -91,13 +89,6 @@
       const ADMIN_PIN = '123';
       let pendingPinAction = null;
     
-          function formatMockDate(dateStr, hourStr) {
-          try {
-            const d = new Date(dateStr);
-            return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${hourStr}:00`;
-          } catch(e) { return dateStr; }
-      }
-
 
       // --- UTILS ---
       function fixDriveLink(url) { return url || ""; }
@@ -160,7 +151,6 @@
           document.getElementById('licensePlatePage').classList.add('hidden');
           document.getElementById('ownerListPage').classList.add('hidden'); 
           
-          // FIX: Adjust Main Content Padding for App Pages (Start from top)
           document.querySelector('main').classList.remove('pt-10');
           document.querySelector('main').classList.add('pt-2');
 
@@ -187,7 +177,6 @@
 
 
       // --- VISITOR LOGIC ---
-      // FIX: Moved loadHomeTempStatus and renderHomeTempStatus up for guaranteed availability
       function loadHomeTempStatus() {
           google.script.run.withSuccessHandler(renderHomeTempStatus).getAllTempData();
       }
@@ -478,20 +467,18 @@
           document.getElementById('histDetailExitTime').innerText = item.exitTime || '-';
           document.getElementById('histDetailPrice').innerText = item.price + ' บาท';
           
-          // --- FIX for Plate Image ---
           const plateImgEl = document.getElementById('histDetailPlateImg');
-          const platePlaceholder = document.getElementById('histDetailPlatePlaceholder'); // Get Placeholder element
+          const platePlaceholder = document.getElementById('histDetailPlatePlaceholder'); 
           if(item.plateImg) {
               plateImgEl.src = fixDriveLink(item.plateImg);
               plateImgEl.classList.remove('hidden');
-              platePlaceholder.classList.add('hidden'); // Hide Placeholder if image exists
+              platePlaceholder.classList.add('hidden'); 
           } else {
               plateImgEl.classList.add('hidden');
-              platePlaceholder.classList.remove('hidden'); // Show Placeholder if image missing
+              platePlaceholder.classList.remove('hidden'); 
           }
 
 
-          // --- FIX for Slip Image ---
           const slipImgEl = document.getElementById('histDetailSlipImg');
           const slipSection = document.getElementById('histDetailSlipSection');
           const slipPlaceholder = document.getElementById('histDetailSlipPlaceholder');
@@ -501,13 +488,12 @@
               slipImgEl.classList.remove('hidden');
               slipPlaceholder.classList.add('hidden');
           } else {
-              slipSection.classList.add('hidden'); // Hide section if no slip? (Original code was toggling section, restoring that behavior)
+              slipSection.classList.add('hidden'); 
               slipImgEl.classList.add('hidden');
               slipPlaceholder.classList.remove('hidden');
           }
 
 
-          // --- FIX for ID Card Image ---
           const idImgEl = document.getElementById('histDetailIdImg');
           const idPlaceholder = document.getElementById('histDetailIdPlaceholder');
           
@@ -608,7 +594,6 @@
           res.results.forEach(item => {
               const bgClass = item.type === 'member' ? 'bg-blue-50 border-blue-100' : 'bg-orange-50 border-orange-100';
               
-              // REMOVED ICON DIV completely as requested to fix overlap
               html += `
                 <div class="p-4 rounded-xl border ${bgClass} mb-3 relative">
                     <div class="absolute top-3 right-3 text-xs font-bold ${item.type === 'member' ? 'text-blue-400' : 'text-orange-400'}">
@@ -626,7 +611,6 @@
                             ${item.phone && item.phone !== '-' ? `<a href="tel:${item.phone}" class="inline-block mt-2 text-xs bg-white border border-gray-200 px-3 py-1 rounded-full text-green-600 font-bold"><i class="fas fa-phone-alt mr-1"></i> โทร</a>` : ''}
                         </div>
                     </div>
-                    <!-- Extra Note if any -->
                     ${item.note ? `<div class="mt-2 text-xs text-gray-500 bg-white/50 p-1 rounded">${item.note}</div>` : ''}
                 </div>
               `;
@@ -642,7 +626,7 @@
       function closeQuickSearchModal() {
           document.getElementById('quickSearchModal').classList.add('hidden');
           document.getElementById('quickSearchModal').classList.remove('flex');
-          document.getElementById('quickSearchInput').value = ''; // Clear input
+          document.getElementById('quickSearchInput').value = ''; 
       }
 
 
@@ -655,9 +639,9 @@
           }).getLicenseList();
       }
 
-
+      // [FIXED]: Removed mockLicenseDB reference
       function renderLicenseList() {
-          const data = licenseData.length ? licenseData : mockLicenseDB; 
+          const data = licenseData || []; 
           const container = document.getElementById('licenseListContainer');
           const searchVal = document.getElementById('licenseSearchInput').value.trim().toLowerCase();
           
@@ -678,8 +662,6 @@
 
           filtered.forEach(item => {
               let imgHtml = ``; 
-
-
               html += `
                 <div onclick="openLicenseDetail(${item.id})" class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-3 active:scale-98 transition cursor-pointer relative">
                     <div class="flex justify-between items-start gap-3">
@@ -698,9 +680,9 @@
           container.innerHTML = html;
       }
 
-
+      // [FIXED]: Removed mockLicenseDB reference
       function openLicenseDetail(id) {
-          const data = licenseData.length ? licenseData : mockLicenseDB;
+          const data = licenseData || [];
           const item = data.find(i => i.id === id);
           if(!item) return;
           
@@ -871,9 +853,9 @@
           }).getOwnerList();
       }
 
-
+      // [FIXED]: Removed mockOwnerDB reference
       function renderOwnerList() {
-          const data = ownerData.length ? ownerData : mockOwnerDB;
+          const data = ownerData || [];
           const container = document.getElementById('ownerListContainer');
           const searchVal = document.getElementById('ownerSearchInput').value.trim().toLowerCase();
           
@@ -909,9 +891,9 @@
           container.innerHTML = html;
       }
 
-
+      // [FIXED]: Removed mockOwnerDB reference
       function openOwnerDetail(id) {
-          const data = ownerData.length ? ownerData : mockOwnerDB;
+          const data = ownerData || [];
           const item = data.find(i => i.id === id);
           if(!item) return;
           
@@ -1017,10 +999,8 @@
           const els = ['OwnerRoom', 'OwnerName', 'OwnerFloor', 'OwnerSize', 'OwnerPhone1', 'OwnerPhone2', 'OwnerNote'];
           els.forEach(key => {
               if(isEdit) {
-                  // Logic ซ่อน/แสดง Input
                   document.getElementById('detail'+key).classList.add('hidden');
                   document.getElementById('edit'+key).classList.remove('hidden');
-                  // Special handle for fields inside other containers if needed (None complex here)
                   if(key === 'OwnerPhone1') document.getElementById('detail'+key).parentElement.classList.add('hidden');
                   if(key === 'OwnerPhone2') document.getElementById('detail'+key).parentElement.classList.add('hidden');
               } else {
@@ -1772,11 +1752,9 @@
   <body class="text-gray-900 font-sans antialiased h-screen flex flex-col overflow-hidden bg-ios-bg" onload="initHomeHeader()">
 
 
-    <!-- HIDDEN FILE INPUT (NEW) -->
     <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
 
 
-    <!-- LOADER -->
     <div id="loader" class="hidden fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm flex justify-center items-center">
         <div class="bg-white p-5 rounded-2xl shadow-xl flex flex-col items-center animate-bounce">
             <div class="w-10 h-10 border-4 border-ios-red border-t-transparent rounded-full animate-spin"></div>
@@ -1784,20 +1762,13 @@
     </div>
 
 
-    <!-- MAIN CONTENT -->
-    <!-- FIX: Reverted main content padding-top to pt-10 for original centering -->
     <main class="flex-1 overflow-y-auto no-scrollbar p-4 pb-24 w-full max-w-md mx-auto pt-10">
       
-      <!-- VISITOR SECTION (HOME) -->
-      <!-- FIX: Home section retains justify-center for center alignment -->
       <div id="homeSection" class="view-section animate-fade-in h-full flex flex-col justify-center">
-        <!-- Search Area -->
         <div id="searchArea" class="w-full flex flex-col items-center text-center p-4">
             <div id="homeHeaderDisplay" class="font-extrabold text-5xl tracking-tight text-gray-900 mb-8 scale-110 leading-tight transition-all duration-300">
-                <!-- Javascript will insert text here -->
-            </div>
+                </div>
             
-            <!-- 1. VISITOR SEARCH (EXISTING) -->
             <div class="w-full relative mb-4 shadow-lg rounded-xl z-20">
                 <input type="number" id="visitorCardId" onkeydown="if(event.key === 'Enter') { this.blur(); handleVisitorAction(); }" class="w-full h-16 pl-6 pr-28 bg-white border-0 rounded-xl text-xl font-bold text-gray-800 focus:outline-none focus:ring-4 focus:ring-ios-red/20 transition shadow-sm placeholder-gray-300" placeholder="เลขบัตร Visitor...">
                 <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -1810,11 +1781,9 @@
         </div>
 
 
-        <!-- NEW: Home Temp Status Dashboard -->
         <div id="homeTempStatusContainer" class="w-full px-4 hidden pb-4"></div>
 
 
-        <!-- Entry Form -->
         <div id="entryFormArea" class="hidden bg-white rounded-3xl shadow-lg border border-gray-100 p-6 mt-4 relative">
             <button onclick="resetHome()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-arrow-right text-green-500"></i> บันทึกรถเข้า</h2>
@@ -1834,12 +1803,9 @@
       </div>
 
 
-      <!-- APP SECTION -->
       <div id="appSection" class="hidden view-section animate-fade-in h-full flex flex-col">
-          <!-- 1. APP MENU -->
           <div id="appMenuPage" class="flex-1 flex flex-col p-2">
               
-              <!-- MOVED HERE: Quick Owner Search -->
               <div class="mb-2 mt-2">
                  <div class="bg-white p-1 rounded-xl border border-gray-200 flex shadow-sm">
                      <input type="text" id="quickSearchInput" onkeydown="if(event.key === 'Enter') { this.blur(); handleQuickSearch(); }" class="flex-1 bg-transparent h-10 pl-3 text-sm text-gray-700 placeholder-gray-400 outline-none" placeholder="ค้นหาทะเบียน หรือ ห้อง (ด่วน)...">
@@ -1857,7 +1823,6 @@
           </div>
 
 
-          <!-- 2. VISITOR HISTORY -->
           <div id="visitorHistoryPage" class="hidden flex-1 flex flex-col h-full bg-ios-bg">
               <div class="flex items-center justify-between mb-4 mt-2 px-2">
                   <div class="flex items-center gap-2"><button onclick="openAppSubPage('menu')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"><i class="fas fa-chevron-left"></i></button><h2 class="text-xl font-bold text-gray-900">ประวัติ <span class="text-ios-red">V</span>isitor</h2></div>
@@ -1866,7 +1831,6 @@
           </div>
 
 
-          <!-- 3. TEMP PARKING (REVERTED) -->
           <div id="tempParkingPage" class="hidden flex-1 flex flex-col h-full bg-ios-bg">
               <div class="flex justify-between items-center mb-4 mt-2 px-2">
                   <div class="flex items-center gap-3"><button onclick="openAppSubPage('menu')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"><i class="fas fa-chevron-left"></i></button><h2 class="text-xl font-bold text-gray-900">จอดชั่วคราว</h2></div>
@@ -1883,26 +1847,22 @@
               <div id="tempListContainer" class="flex-1 overflow-y-auto pb-20 px-2"></div>
           </div>
           
-          <!-- 4. LICENSE PLATE (NEW) -->
           <div id="licensePlatePage" class="hidden flex-1 flex flex-col h-full bg-ios-bg">
               <div class="flex justify-between items-center mb-4 mt-2 px-2">
                   <div class="flex items-center gap-3"><button onclick="openAppSubPage('menu')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"><i class="fas fa-chevron-left"></i></button><h2 class="text-xl font-bold text-gray-900">ทะเบียนรถ</h2></div>
                   <button onclick="openAddLicenseModal()" class="w-10 h-10 rounded-full bg-ios-red text-white shadow hover:bg-red-600 active:scale-90 transition flex items-center justify-center"><i class="fas fa-plus"></i></button>
               </div>
               
-              <!-- Search -->
               <div class="relative mb-4 mx-2">
                  <input type="text" id="licenseSearchInput" onkeyup="renderLicenseList()" class="w-full bg-white h-12 pl-10 pr-4 rounded-xl border-none shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-gray-100 text-gray-600 placeholder-gray-400" placeholder="ค้นหาทะเบียน, ห้อง, ชื่อ...">
                  <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
               </div>
 
 
-              <!-- List Container -->
               <div id="licenseListContainer" class="flex-1 overflow-y-auto pb-20 px-2"></div>
           </div>
 
 
-          <!-- 5. OWNER LIST PAGE (NEW) -->
           <div id="ownerListPage" class="hidden flex-1 flex flex-col h-full bg-ios-bg">
               <div class="flex justify-between items-center mb-4 mt-2 px-2">
                   <div class="flex items-center gap-3"><button onclick="openAppSubPage('menu')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"><i class="fas fa-chevron-left"></i></button><h2 class="text-xl font-bold text-gray-900">รายชื่อเจ้าของ</h2></div>
@@ -1923,17 +1883,12 @@
     </main>
 
 
-    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 h-[80px] pb-safe-bottom z-40 flex justify-around items-start pt-2">
         <button id="btnTabHome" onclick="switchTab('home')" class="flex-1 flex flex-col items-center justify-center h-14 space-y-1 active:opacity-50 transition"><i class="fas fa-qrcode text-xl text-ios-red mb-0.5"></i><span class="text-[10px] font-semibold text-ios-red">Visitor</span></button>
         <button id="btnTabApp" onclick="switchTab('app')" class="flex-1 flex flex-col items-center justify-center h-14 space-y-1 active:opacity-50 transition"><i class="fas fa-th-large text-xl text-gray-400 mb-0.5"></i><span class="text-[10px] font-medium text-gray-500">App</span></button>
     </nav>
 
 
-    <!-- === MODALS === -->
-
-
-    <!-- NEW: Quick Search Result Modal -->
     <div id="quickSearchModal" class="hidden fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center mb-4">
@@ -1941,17 +1896,14 @@
                 <button onclick="closeQuickSearchModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"><i class="fas fa-times"></i></button>
             </div>
             <div id="quickSearchResultContent" class="overflow-y-auto flex-1">
-                <!-- Results will be injected here -->
-            </div>
+                </div>
         </div>
     </div>
 
 
-    <!-- HISTORY DETAIL MODAL (NEW: With Edit Mode & ID Card) -->
     <div id="historyDetailModal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             
-            <!-- Header with Edit/Print Buttons -->
             <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center flex-none">
                 <h3 class="font-bold text-gray-800">รายละเอียด</h3>
                 <div class="flex items-center gap-4">
@@ -1968,7 +1920,6 @@
             </div>
 
 
-            <!-- Content -->
             <div class="p-5 overflow-y-auto">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div><span class="text-xs text-gray-400 block">เลขบัตร</span><span id="histDetailCardId" class="font-bold text-gray-800 text-lg"></span></div>
@@ -1982,12 +1933,9 @@
 
 
                 <div class="space-y-4">
-                    <!-- 1. Plate Image -->
                     <div>
                         <label class="text-xs text-gray-400 block mb-1">รูปรถ</label>
-                        <!-- FIX: Use 'relative' on placeholder and remove from container. Added w-full h-full object-cover to img -->
                         <div id="histDetailPlateContainer" onclick="handleHistoryImgClick('plate')" class="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer border border-gray-200 overflow-hidden relative">
-                            <!-- FIX: Placeholder now centered -->
                             <div id="histDetailPlatePlaceholder" class="flex flex-col items-center text-center p-4 absolute inset-0 justify-center">
                                 <i class="fas fa-car-side text-2xl text-gray-300"></i><span class="text-xs text-gray-400 mt-1">ไม่มีรูป</span>
                             </div>
@@ -1996,13 +1944,10 @@
                         </div>
                     </div>
                     
-                    <!-- 2. ID Card Image -->
                     <div>
                         <label class="text-xs text-gray-400 block mb-1">รูปบัตรประชาชน</label>
-                        <!-- FIX: Use 'relative' on placeholder and remove from container. Added w-full h-full object-cover to img -->
                         <div id="histDetailIdContainer" onclick="handleHistoryImgClick('idcard')" class="w-full bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer border border-gray-200 overflow-hidden relative" style="aspect-ratio: 1.59;">
                             <img id="histDetailIdImg" class="hidden absolute inset-0 w-full h-full object-cover">
-                            <!-- FIX: Placeholder now centered -->
                             <div id="histDetailIdPlaceholder" class="flex flex-col items-center text-center p-4 absolute inset-0 justify-center">
                                 <i class="fas fa-id-card text-2xl text-gray-300"></i><span class="text-xs text-gray-400 mt-1">เพิ่มรูปบัตร</span>
                             </div>
@@ -2011,13 +1956,10 @@
                     </div>
 
 
-                    <!-- 3. Slip Image -->
                     <div id="histDetailSlipSection">
                         <label class="text-xs text-gray-400 block mb-1">รูปสลิป</label>
-                        <!-- FIX: Use 'relative' on placeholder and remove from container. Added w-full h-full object-cover to img -->
                         <div id="histDetailSlipContainer" onclick="handleHistoryImgClick('slip')" class="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer border border-gray-200 overflow-hidden relative">
                             <img id="histDetailSlipImg" class="hidden absolute inset-0 w-full h-full object-cover">
-                            <!-- FIX: Placeholder now centered -->
                             <div id="histDetailSlipPlaceholder" class="flex flex-col items-center text-center p-4 absolute inset-0 justify-center">
                                 <i class="fas fa-file-invoice-dollar text-2xl text-gray-300"></i><span class="text-xs text-gray-400 mt-1">ไม่มีรูป</span>
                             </div>
@@ -2032,7 +1974,6 @@
     </div>
 
 
-    <!-- Exit Popup (Checkout) -->
     <div id="exitPopupModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6 animate-slide-up shadow-2xl">
             <div class="text-center mb-6 pt-2">
@@ -2042,8 +1983,6 @@
                  </div>
             </div>
             <div id="exitInfo" class="bg-gray-50 rounded-xl p-4 mb-4"></div>
-            <!-- Slip Upload: Changed to openCamera for LIVE capture -->
-            <!-- Changed h-32 to aspect-square (1:1) -->
             <div id="slipImageContainer" onclick="openCamera('slip')" class="w-full aspect-square bg-white border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-3 mb-6 cursor-pointer hover:bg-gray-50 relative overflow-hidden transition group">
                 <div id="slipPlaceholder" class="flex flex-col items-center gap-2"><div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition"><i class="fas fa-file-invoice-dollar text-2xl text-gray-400"></i></div><span class="text-sm text-gray-600 font-medium">กดเพื่อถ่ายสลิป</span></div>
                 <img id="slipPreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black">
@@ -2056,7 +1995,6 @@
     </div>
 
 
-    <!-- Add Temp Modal (Updated with Image) -->
     <div id="addTempModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl">
             <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มรายการจอดชั่วคราว</h3>
@@ -2065,7 +2003,6 @@
                 <input type="text" id="tempPlate" placeholder="ทะเบียนรถ" class="w-full h-10 border border-gray-200 rounded-lg px-3 focus:border-yellow-400 outline-none">
                 <div class="grid grid-cols-2 gap-2"><div><label class="text-xs text-gray-400 block mb-1">วันที่เริ่ม</label><input type="date" id="tempStartDate" class="w-full h-10 border border-gray-200 rounded-lg px-2 text-sm bg-white"></div><div><label class="text-xs text-gray-400 block mb-1">เวลาเริ่ม</label><select id="tempStartHour" class="w-full h-10 border border-gray-200 rounded-lg px-2 bg-white text-gray-800"></select></div></div>
                 <div class="grid grid-cols-2 gap-2"><div><label class="text-xs text-gray-400 block mb-1">วันที่สิ้นสุด</label><input type="date" id="tempEndDate" class="w-full h-10 border border-gray-200 rounded-lg px-2 text-sm bg-white"></div><div><label class="text-xs text-gray-400 block mb-1">เวลาสิ้นสุด</label><select id="tempEndHour" class="w-full h-10 border border-gray-200 rounded-lg px-2 bg-white text-gray-800"></select></div></div>
-                <!-- Add Image Section -->
                 <div><label class="text-xs text-gray-400 block mb-1">รูปรถ (ไม่บังคับ)</label><div onclick="captureTempAddImage()" class="w-full h-24 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100 overflow-hidden relative"><div id="addTempImgPlaceholder" class="flex flex-col items-center"><i class="fas fa-image text-gray-400 text-xl mb-1"></i><span class="text-[10px] text-gray-400">กดเลือกรูปภาพ</span></div><img id="addTempImgPreview" class="hidden absolute inset-0 w-full h-full object-cover"></div></div>
             </div>
             <div class="flex gap-3 mt-6">
@@ -2075,7 +2012,6 @@
         </div>
     </div>
     
-    <!-- Add License Modal (Reverted to Standard Structure) -->
     <div id="addLicenseModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto pb-10">
             <h3 class="text-lg font-bold text-gray-800 mb-4">ลงทะเบียนรถใหม่</h3>
@@ -2113,7 +2049,6 @@
     </div>
 
 
-    <!-- Add Owner Modal (NEW) -->
     <div id="addOwnerModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto pb-10">
             <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มรายชื่อเจ้าของ</h3>
@@ -2140,30 +2075,23 @@
     </div>
 
 
-    <!-- License Detail Modal (NEW) -->
     <div id="licenseDetailModal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <!-- Added max-h-[90vh] flex flex-col to match standard -->
         <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
-            <!-- Header -->
             <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center flex-none">
                 <h3 class="font-bold text-gray-800">รายละเอียดรถยนต์</h3>
                 
-                <!-- View Controls -->
                 <div id="licDetailViewControls" class="flex items-center gap-4">
                     <button onclick="enableLicenseEdit()" class="text-blue-500 hover:text-blue-700 font-bold text-sm">แก้ไข</button>
                     <button onclick="closeLicenseDetail()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
                 </div>
                 
-                <!-- Edit Controls (Hidden initially) -->
                 <div id="licDetailEditControls" class="hidden flex items-center gap-3">
                     <button onclick="cancelLicenseEdit()" class="text-gray-500 font-bold text-sm">ยกเลิก</button>
                     <button onclick="saveLicenseEdit()" class="text-ios-red font-bold text-sm">บันทึก</button>
                 </div>
             </div>
             
-            <!-- Content: Added overflow-y-auto -->
             <div class="p-5 overflow-y-auto">
-                <!-- Image Section -->
                 <div class="mb-5">
                     <div id="detailLicImgContainer" class="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200 relative group cursor-pointer">
                         <img id="detailLicImg" class="hidden w-full h-full object-cover">
@@ -2171,7 +2099,6 @@
                             <i class="fas fa-car text-4xl mb-2"></i>
                             <span class="text-xs">ไม่มีรูปรถ</span>
                         </div>
-                        <!-- NEW: Overlay for Edit Mode -->
                         <div id="detailLicImgOverlay" class="absolute inset-0 bg-black/20 hidden flex items-center justify-center text-white text-xs font-bold backdrop-blur-[1px]">
                             <i class="fas fa-camera mr-2"></i> เปลี่ยนรูป
                         </div>
@@ -2193,7 +2120,6 @@
                         </div>
                     </div>
                     
-                    <!-- Rights Display -->
                     <div class="bg-blue-50 p-2 rounded-lg flex items-center justify-between">
                         <span class="text-xs text-blue-500 font-bold">สิทธิ์การจอด</span>
                         <span id="detailLicRights" class="text-blue-700 font-extrabold text-lg"></span>
@@ -2219,7 +2145,6 @@
                          </div>
                     </div>
                     
-                    <!-- NEW: Delete Button (Visible only in Edit Mode) -->
                     <button id="licDeleteBtn" onclick="deleteCurrentLicense()" class="hidden w-full py-2.5 text-red-500 font-bold border border-red-100 bg-red-50 rounded-xl hover:bg-red-100 mt-4">ลบรายการ</button>
                 </div>
             </div>
@@ -2227,28 +2152,22 @@
     </div>
 
 
-    <!-- Owner Detail Modal (UPDATED) -->
     <div id="ownerDetailModal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
-            <!-- Header -->
             <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center flex-none">
                 <h3 class="font-bold text-gray-800">รายละเอียดเจ้าของ</h3>
-                <!-- View Controls -->
                 <div id="ownerDetailViewControls" class="flex items-center gap-4">
                     <button onclick="enableOwnerEdit()" class="text-blue-500 hover:text-blue-700 font-bold text-sm">แก้ไข</button>
                     <button onclick="closeOwnerDetail()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
                 </div>
-                <!-- Edit Controls -->
                 <div id="ownerDetailEditControls" class="hidden flex items-center gap-3">
                     <button onclick="cancelOwnerEdit()" class="text-gray-500 font-bold text-sm">ยกเลิก</button>
                     <button onclick="saveOwnerEdit()" class="text-ios-red font-bold text-sm">บันทึก</button>
                 </div>
             </div>
             
-            <!-- Content -->
             <div class="p-5 overflow-y-auto">
                 <div class="space-y-4">
-                    <!-- Room & Name -->
                     <div>
                         <span class="text-xs text-gray-400 block">เลขห้อง</span>
                         <span id="detailOwnerRoom" class="font-bold text-gray-800 text-lg"></span>
@@ -2263,7 +2182,6 @@
                     <div class="border-t border-dashed border-gray-200 pt-3"></div>
 
 
-                    <!-- Floor & Size -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <span class="text-xs text-gray-400 block">ชั้น</span>
@@ -2278,7 +2196,6 @@
                     </div>
 
 
-                    <!-- Phones -->
                     <div>
                          <span class="text-xs text-gray-400 block">เบอร์โทรศัพท์ 1</span>
                          <div><span id="detailOwnerPhone1" class="font-medium text-gray-800"></span></div>
@@ -2291,14 +2208,12 @@
                     </div>
 
 
-                    <!-- Note -->
                     <div>
                          <span class="text-xs text-gray-400 block">หมายเหตุ</span>
                          <span id="detailOwnerNote" class="text-sm text-gray-600 bg-gray-50 p-2 rounded block mt-1"></span>
                          <textarea id="editOwnerNote" rows="2" class="hidden w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-600 focus:border-blue-500 outline-none resize-none bg-white"></textarea>
                     </div>
                     
-                    <!-- Delete Button -->
                     <button id="ownerDeleteBtn" onclick="deleteCurrentOwner()" class="hidden w-full py-2.5 text-red-500 font-bold border border-red-100 bg-red-50 rounded-xl hover:bg-red-100 mt-4">ลบรายการ</button>
                 </div>
             </div>
@@ -2306,13 +2221,11 @@
     </div>
 
 
-    <!-- Temp Detail Modal (New with View/Edit Modes) -->
     <div id="tempDetailModal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
             <div class="bg-gray-50 p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 class="font-bold text-gray-800">รายละเอียด</h3>
                 <div class="flex items-center gap-4">
-                    <!-- Edit Button (Visible in View Mode) -->
                     <button id="tempDetailEditBtn" onclick="enableTempEdit()" class="text-blue-500 hover:text-blue-700 font-bold text-sm">แก้ไข</button>
                     <button onclick="closeTempDetail()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
                 </div>
@@ -2321,16 +2234,12 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <span class="text-xs text-gray-400 block">เลขห้อง</span>
-                        <!-- View Mode -->
                         <span id="viewTempRoom" class="font-bold text-gray-800 text-lg block"></span>
-                        <!-- Edit Mode -->
                         <input id="editTempRoom" type="text" class="hidden w-full border border-gray-300 rounded px-2 py-1 text-sm font-bold text-gray-800">
                     </div>
                     <div>
                         <span class="text-xs text-gray-400 block">ทะเบียน</span>
-                        <!-- View Mode -->
                         <span id="viewTempPlate" class="font-bold text-gray-800 text-lg block"></span>
-                        <!-- Edit Mode -->
                         <input id="editTempPlate" type="text" class="hidden w-full border border-gray-300 rounded px-2 py-1 text-sm font-bold text-gray-800">
                     </div>
                 </div>
@@ -2340,30 +2249,24 @@
                     <div class="flex justify-between"><span>สถานะ:</span> <span id="detailTempStatus" class="font-bold text-blue-600"></span></div>
                 </div>
                 
-                <!-- Image Section in Detail -->
                 <div class="mb-4">
                     <label class="text-xs text-gray-400 block mb-1">รูปรถ</label>
-                    <!-- UPDATED: onclick calls handleTempImgClick() -->
                     <div id="detailTempImgContainer" onclick="handleTempImgClick()" class="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer border border-gray-200 overflow-hidden relative group">
                         <img id="detailTempImg" class="hidden w-full h-full object-cover">
                         <div id="detailTempImgPlaceholder" class="flex flex-col items-center">
-                            <!-- Changed Icon to Image/Upload -->
                             <i class="fas fa-cloud-upload-alt text-2xl text-gray-300"></i>
                             <span class="text-xs text-gray-400 mt-1">อัปโหลดรูปภาพ</span>
                         </div>
-                        <!-- Overlay hint (Hidden by default, shown in Edit Mode) -->
                         <div id="detailTempImgOverlay" class="absolute inset-0 bg-black/20 hidden flex items-center justify-center text-white text-xs font-bold">แตะเพื่อเปลี่ยนรูป</div>
                     </div>
                 </div>
 
 
-                <!-- View Mode Controls -->
                 <div id="tempDetailViewControls">
                     <button id="tempDetailDeleteBtn" onclick="deleteCurrentTemp()" class="w-full py-2.5 text-red-500 font-bold border border-red-100 bg-red-50 rounded-xl hover:bg-red-100">ยกเลิกรายการ</button>
                 </div>
 
 
-                <!-- Edit Mode Controls (Hidden by default) -->
                 <div id="tempDetailEditControls" class="hidden flex gap-3">
                       <button onclick="cancelTempEdit()" class="flex-1 py-2.5 text-gray-600 font-bold bg-gray-100 rounded-xl">ยกเลิก</button>
                       <button onclick="saveTempEdit()" class="flex-1 py-2.5 text-white font-bold bg-ios-red rounded-xl shadow-lg shadow-red-200">บันทึก</button>
@@ -2373,7 +2276,6 @@
     </div>
 
 
-    <!-- Full Image Modal (NEW) -->
     <div id="fullImageModal" class="hidden fixed inset-0 z-[70] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm cursor-zoom-out" onclick="closeFullImage()">
         <img id="fullImagePreview" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 scale-100">
         <button class="absolute top-4 right-4 text-white/80 hover:text-white p-2">
@@ -2382,7 +2284,6 @@
     </div>
 
 
-    <!-- Alert Modal -->
     <div id="alertModal" class="hidden fixed inset-0 z-[60] bg-black/20 flex items-center justify-center p-8">
         <div class="bg-white rounded-2xl p-6 shadow-xl w-64 text-center animate-scale-in">
             <i id="alertIcon" class="fas fa-check-circle text-4xl text-green-500 mb-2"></i>
@@ -2393,7 +2294,6 @@
     </div>
 
 
-    <!-- Confirm Modal -->
     <div id="confirmModal" class="hidden fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-6">
         <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-xs text-center">
             <h4 id="confirmTitle" class="font-bold text-gray-800 text-lg mb-2">ยืนยัน</h4>
@@ -2406,7 +2306,6 @@
     </div>
 
 
-    <!-- PIN Modal (NEW) -->
     <div id="pinModal" class="hidden fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
         <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-xs text-center animate-scale-in">
             <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-500">
@@ -2425,21 +2324,18 @@
     </div>
 
 
-    <!-- QR Scan Modal (Added) -->
     <div id="qrModal" class="hidden fixed inset-0 z-[80] bg-black/80 flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-4 w-full max-w-sm relative">
             <button onclick="stopQrScanner()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 z-10 w-8 h-8 flex items-center justify-center">
                 <i class="fas fa-times text-xl"></i>
             </button>
             <h3 class="text-center font-bold text-gray-800 mb-4">สแกน QR Code</h3>
-            <!-- Enlarged Scanner Area -->
             <div id="reader" class="w-full rounded-lg overflow-hidden bg-black h-96"></div>
             <p class="text-center text-xs text-gray-400 mt-4">วาง QR Code ให้อยู่ในกรอบ</p>
         </div>
     </div>
 
 
-    <!-- Camera Modal (Simple Mock UI) -->
     <div id="cameraModal" class="hidden fixed inset-0 z-[70] bg-black flex flex-col">
         <div class="relative flex-1 bg-black flex items-center justify-center">
             <video id="cameraVideo" class="w-full h-full object-cover" autoplay playsinline></video>
